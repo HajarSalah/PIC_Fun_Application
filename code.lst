@@ -1,0 +1,1255 @@
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00002 ;
+                      00003 ;       CALC.ASM        MPB     Ver 1.0         28-8-05
+                      00004 ;
+                      00005 ;       Simple calculator 
+                      00006 ;       Single digit input, two digit results
+                      00007 ;       Integer handling only  
+                      00008 ;
+                      00009 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00010 
+                      00011         PROCESSOR 16F877
+                      00012 ;       Clock = XT 4MHz, standard fuse settings
+2007   3731           00013         __CONFIG 0x3731
+                      00014 
+                      00015 ;       LABEL EQUATES   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00016 
+                      00017         INCLUDE "P16F877A.INC"  
+                      00001         LIST
+                      00002 ; P16F877A.INC  Standard Header File, Version 1.00    Microchip Technology, Inc.
+                      00398         LIST
+                      00018 
+                      00019 
+  00000028            00020 Cursor  EQU 28
+  00000039            00021 Timer   EQU 39
+  00000030            00022 Char    EQU     30      ; Display character code
+  00000041            00023 Char1   EQU 41
+  00000042            00024 Char2   EQU 42
+  00000043            00025 Char3   EQU 43
+  00000044            00026 Char4   EQU 44
+  00000045            00027 Char5   EQU 45
+  00000046            00028 Index   EQU 46
+  00000048            00029 Characters EQU 48
+  00000047            00030 Current_char EQU 47
+                      00031 
+  00000001            00032 RS      EQU     1       ; Register select output bit
+  00000002            00033 E       EQU     2       ; Display data strobe
+                      00034 
+                      00035 
+                      00036 ; Program begins ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00037 
+                      00038         ORG     0               ; Default start address 
+0000   0000           00039         NOP                     ; required for ICD mode
+                      00040 
+0001   1683 1303      00041         BANKSEL TRISC           ; Select bank 1
+0003   30F0           00042         MOVLW   B'11110000'     ; Keypad direction code
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0004   0087           00043         MOVWF   TRISC           ;  
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0005   0188           00044         CLRF    TRISD           ; Display port is output
+0006   30FF           00045         MOVLW B'11111111' ;port b as input
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0007   0086           00046         MOVWF TRISB
+                      00047 
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0008   1283 1303      00048         BANKSEL PORTC           ; Select bank 0
+000A   30FF           00049         MOVLW   0FF             ; 
+000B   0087           00050         MOVWF   PORTC           ; Set keypad outputs high
+000C   0188           00051         CLRF    PORTD           ; Clear display outputs
+000D   2???           00052         GOTO    start           ; Jump to main program
+                      00053 
+                      00054 
+                      00055 ; MAIN LOOP ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00056 ;_______________________________________________________________________Welcome_________________________
+                            ___________________________________
+                      00057 
+000E   2???           00058 start   CALL    inid            ; Initialise the display
+000F   3080           00059                 MOVLW   0x80            ; position to home cursor
+0010   10F4           00060                 BCF     Select,RS       ; Select command mode
+0011   2???           00061                 CALL    send            ; and send code
+0012   14F4           00062                 BSF Select,RS
+0013   3045           00063                 movlw 'E' ; Load the character 'E' into the W register
+0014   2???           00064                 call send ; Send the character to the LCD
+0015   306E           00065                 movlw 'n' ; Load the character 'n' into the W register
+0016   2???           00066                 call send ; Send the character to the LCD
+0017   3074           00067                 movlw 't' ; Load the character 't' into the W register
+0018   2???           00068                 call send ; Send the character to the LCD
+0019   3065           00069                 movlw 'e' ; Load the character 'e' into the W register
+001A   2???           00070                 call send ; Send the character to the LCD
+001B   3072           00071                 movlw 'r' ; Load the character 'r' into the W register
+001C   2???           00072                 call send ; Send the character to the LCD
+001D   3020           00073                 movlw ' ' ; Load the character ' ' into the W register
+001E   2???           00074                 call send ; Send the character to the LCD
+001F   3053           00075                 movlw 'S' ; Load the character 'S' into the W register
+0020   2???           00076                 call send ; Send the character to the LCD
+0021   3074           00077                 movlw 't' ; Load the character 't' into the W register
+0022   2???           00078                 call send ; Send the character to the LCD
+0023   3072           00079                 movlw 'r' ; Load the character 'r' into the W register
+0024   2???           00080                 call send ; Send the character to the LCD
+0025   3069           00081                 movlw 'i' ; Load the character 'i' into the W register
+0026   2???           00082                 call send ; Send the character to the LCD
+0027   306E           00083                 movlw 'n' ; Load the character 'n' into the W register
+0028   2???           00084                 call send ; Send the character to the LCD
+0029   3067           00085                 movlw 'g' ; Load the character 'g' into the W register
+002A   2???           00086                 call send ; Send the character to the LCD
+                      00087                 
+                      00088 
+Warning[211]: Extraneous arguments on the line.
+002B   0103           00089                 CLRW    Char            ; ASCII = 0
+Warning[211]: Extraneous arguments on the line.
+002C   0103           00090                 CLRW    Kval            ; Key value = 0
+Warning[211]: Extraneous arguments on the line.
+002D   0103           00091                 CLRW    DFlag           ; Digit flags = 0
+                      00092                 ;___________________init vars_________________________
+002E   3000           00093                 movlw 0         ;initialize index 
+002F   00C6           00094                 movwf Index
+0030   3000           00095                 movlw 0         ;initialize 
+0031   00C8           00096                 movwf Characters
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0032   3000           00097                 MOVLW 0x0       ;initialize timer
+0033   00B9           00098                 MOVWF Timer
+0034   3041           00099                 MOVLW 41 ;initialize pointer
+0035   0084           00100                 MOVWF FSR ;to RAM
+                      00101 
+0036   3020           00102         MOVLW 0x20      ;initialize timer
+0037   00C1           00103         MOVWF Char1
+0038   3020           00104         MOVLW 0x20      ;initialize timer
+0039   00C2           00105         MOVWF Char2
+003A   3020           00106         MOVLW 0x20      ;initialize timer
+003B   00C3           00107         MOVWF Char3
+003C   3020           00108         MOVLW 0x20      ;initialize timer
+003D   00C4           00109         MOVWF Char4
+003E   3020           00110         MOVLW 0x20      ;initialize timer
+003F   00C5           00111         MOVWF Char5
+                      00112                 ;_______________________________________________________________________ENTER STRING____
+                            ________________________________________________________
+0040   30C0           00113 pRoutine MOVLW 0xC0 ;move cursor to second line
+0041   10F4           00114                 BCF Select,RS ; command
+0042   2???           00115                 call send
+0043   300F           00116                 MOVLW 0x0F;blinking command mode
+0044   2???           00117                 call send
+                      00118 
+0045   14F4           00119                 BSF Select,RS ; data mode
+                      00120 
+                      00121                 ; Load the value 0x41 (A) to W and send it to LCD
+0046   3041           00122         movlw 0x41
+0047   00C7           00123                 movwf Current_char
+0048   2???           00124                 call send
+                      00125 
+0049   10F4           00126                 BCF Select,RS;go back to command mode
+004A   3010           00127                 MOVLW 0x10;moves cursor back 
+004B   2???           00128                 call send
+                      00129         
+                      00130 
+                      00131 ;___________________________________________
+                      00132 
+                      00133 
+                      00134 
+                      00135 
+004C   0AB9           00136 buttonNotPressed incf Timer, 1  ;increment the timer
+004D   3064           00137                 MOVLW   D'100'          ; Load count for 100ms delay
+004E   2???           00138                 CALL    xms
+                      00139 
+004F   3010           00140                 movlw 10
+0050   0639           00141                 xorwf Timer, W  ;check if timer reached limit
+0051   1903           00142                 btfsc STATUS, Z ; when res is zero Z = 1
+0052   2???           00143                 call incCursor  ; do this when equal 
+                      00144 
+0053   1806           00145                 btfsc PORTB, 0
+0054   2???           00146                 goto buttonNotPressed
+                      00147                 
+0055   3000           00148                 movlw 0x0
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0056   00B9           00149                 movwf Timer;reset timer
+                      00150 
+0057   305A           00151                 movlw 'Z'
+0058   0647           00152                 xorwf Current_char, W ;check if character is Z
+0059   1D03           00153                 btfss STATUS, Z 
+005A   2???           00154                 goto printNext ;do this when not equal
+                      00155         
+                      00156         ;char before ' '
+005B   301F           00157         movlw 0x1F
+005C   00C7           00158         movwf Current_char
+005D   2???           00159                 goto printNext  ;print space
+                      00160 
+                      00161 ;__________________________________________________________INC char_____________________________________
+                            __
+005E   0847           00162 printNext movfw Current_char
+005F   3E01           00163         addlw 0x1
+0060   00C7           00164         movwf Current_char
+0061   14F4           00165                 BSF Select,RS;write mode
+0062   2???           00166                 call send
+                      00167                 
+                      00168         ;return cursor left
+0063   10F4           00169                 BCF Select,RS   ;go back to command mode
+0064   3010           00170                 MOVLW 0x10
+0065   2???           00171                 call send
+                      00172         
+                      00173         ;200ms delay
+0066   30C8           00174                 MOVLW   D'200'          
+0067   2???           00175                 CALL    xms
+                      00176 
+0068   3020           00177                 movlw ' '
+0069   0647           00178                 xorwf Current_char, W ;check if character is ' '
+006A   1D03           00179                 btfss STATUS, Z
+006B   2???           00180                 goto buttonNotPressed ;do this when not equal
+                      00181 
+006C   3040           00182                 movlw 0x40
+006D   00C7           00183                 movwf Current_char
+006E   2???           00184                 goto buttonNotPressed
+                      00185 ;_______________________________________________________________________INC Cursor______________________
+                            ______________________________________
+                      00186 ;save current char
+006F   3040           00187 incCursor movlw 0x40
+0070   0647           00188                 xorwf Current_char, W  ;check if ' '
+0071   1903           00189                 btfsc STATUS, Z ; when res is zero Z = 1
+0072   2???           00190                 goto test_off  ; do this when equal  
+                      00191 
+0073   0847           00192                 movfw Current_char
+0074   0080           00193                 movwf INDF
+0075   0A84           00194                 INCF FSR,1      ;inc pointer
+0076   0AC6           00195                 incf Index,1;inc index to save characterss
+                      00196                 
+                      00197         ;move cursor to the right
+0077   10F4           00198                 BCF Select,RS
+0078   3014           00199                 movlw 0x14      
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0079   2???           00200                 call send
+                      00201 
+                      00202         ;reset timer
+007A   3000           00203                 movlw 0x0
+007B   00B9           00204                 movwf Timer
+                      00205 
+                      00206         ;reset char to A
+007C   3040           00207                 movlw '@'
+007D   00C7           00208                 movwf Current_char
+                      00209         
+                      00210         ;check if 5 chars reached   
+007E   3005           00211                 movlw 5
+007F   0646           00212                 xorwf Index, W ;check if characters reached 5
+0080   1903           00213                 btfsc STATUS, Z
+0081   2???           00214                 call test_off   ;do this when equal
+0082   2???           00215                 goto printNext
+0083   0008           00216                 return
+                      00217 
+                      00218 ;_______________________________________________________________________Turn off desplay________________
+                            ____________________________________________
+0084   3008           00219 test_off movlw 0x08
+0085   10F4           00220                 BCF Select,RS
+0086   2???           00221                 call send
+Warning[202]: Argument out of range.  Least significant bits used.
+0087   30A0           00222                 MOVLW   D'4000'         ; Load count for 100ms delay
+0088   2???           00223                 CALL    xms
+Warning[202]: Argument out of range.  Least significant bits used.
+0089   30A0           00224                 MOVLW   D'4000'         ; Load count for 100ms delay
+008A   2???           00225                 CALL    xms
+Warning[202]: Argument out of range.  Least significant bits used.
+008B   30A0           00226                 MOVLW   D'4000'         ; Load count for 100ms delay
+008C   2???           00227                 CALL    xms
+Warning[202]: Argument out of range.  Least significant bits used.
+008D   30A0           00228                 MOVLW   D'4000'         ; Load count for 100ms delay
+008E   2???           00229                 CALL    xms
+Warning[202]: Argument out of range.  Least significant bits used.
+008F   30A0           00230                 MOVLW   D'4000'         ; Load count for 100ms delay
+0090   2???           00231                 CALL    xms
+Warning[202]: Argument out of range.  Least significant bits used.
+0091   30A0           00232                 MOVLW   D'4000'         ; Load count for 100ms delay
+0092   2???           00233                 CALL    xms
+                      00234 
+                      00235 
+                      00236 ;_____________________________________________________^
+                      00237         ;Clear LCD and go to beginning of 1st row
+0093   3001           00238 shift_screen    MOVLW   0x01            ; clear
+0094   10F4           00239                 BCF     Select,RS       ; Select command mode
+0095   2???           00240                 CALL    send            ; and send code
+0096   3080           00241                 MOVLW   0x80            ; position to home cursor
+0097   2???           00242                 CALL    send            ; and send code
+                      00243 
+                      00244 
+0098   14F4           00245                 BSF Select,RS ;data mode
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0099   3045           00246                 MOVLW 45 ;initialize pointer
+009A   0084           00247                 MOVWF FSR ;to RAM
+                      00248                 
+009B   0800           00249 printt  movfw INDF
+009C   2???           00250                 call send
+009D   0384           00251                 DECF FSR,1 ;inc pointer
+                      00252         
+                      00253         
+009E   3040           00254                 movlw 40
+009F   0604           00255                 xorwf FSR, W  
+00A0   1D03           00256                 btfss STATUS, Z ; when res is zero Z = 1
+00A1   2???           00257                 GOTO printt ;   do this when not equal
+                      00258 
+00A2   2???           00259                 call shift_once_left
+00A3   2???           00260                 call shift_once_left
+00A4   2???           00261                 call shift_once_left
+00A5   2???           00262                 call shift_once_left
+00A6   2???           00263                 call shift_once_left
+                      00264 
+00A7   10F4           00265                 BCF Select,RS
+00A8   300E           00266                 movlw 0x0E
+00A9   2???           00267                 call send
+                      00268 
+                      00269 ;_______________________________________________________
+00AA   2???           00270                 call shift_once
+00AB   2???           00271                 call shift_once
+00AC   2???           00272                 call shift_once
+00AD   2???           00273                 call shift_once
+00AE   2???           00274                 call shift_once
+00AF   2???           00275                 call shift_once
+00B0   2???           00276                 call shift_once
+00B1   2???           00277                 call shift_once
+00B2   2???           00278                 call shift_once
+00B3   2???           00279                 call shift_once
+00B4   2???           00280                 call shift_once
+00B5   2???           00281                 call shift_once
+00B6   2???           00282                 call shift_once
+00B7   2???           00283                 call shift_once
+00B8   2???           00284                 call shift_once
+00B9   2???           00285                 call shift_once
+                      00286                 
+                      00287 
+                      00288 
+                      00289 
+                      00290 ;___________________________________________---BLOCK # 1---_____________________________
+00BA   1C06           00291                 btfss PORTB, 0
+00BB   2???           00292                 goto start
+                      00293         ;clear
+00BC   3001           00294                 MOVLW   0x01            ; clear
+00BD   10F4           00295                 BCF     Select,RS       ; Select command mode
+00BE   2???           00296                 CALL    send            ; and send code
+                      00297 
+                      00298 
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00299         ;choose slot
+00BF   10F4           00300                 BCF     Select,RS       ; command mode          
+00C0   308C           00301                 movlw   0x8C    ; Address for slot
+00C1   2???           00302         call    send
+                      00303         ;print char
+00C2   14F4           00304                 BSF Select,RS
+00C3   3045           00305                 MOVLW 45 ;initialize pointer
+00C4   0084           00306                 MOVWF FSR ;to RAM
+00C5   0800           00307                 movfw INDF
+00C6   2???           00308                 call send
+                      00309 
+                      00310         ;choose slot
+00C7   10F4           00311                 BCF     Select,RS       ; command mode          
+00C8   308D           00312                 movlw   0x8D    ; Address for slot
+00C9   2???           00313         call    send
+                      00314         ;print char
+00CA   14F4           00315                 BSF Select,RS
+00CB   3044           00316                 MOVLW 44 ;initialize pointer
+00CC   0084           00317                 MOVWF FSR ;to RAM
+00CD   0800           00318                 movfw INDF
+00CE   2???           00319                 call send
+                      00320 
+                      00321         ;choose slot
+00CF   10F4           00322                 BCF     Select,RS       ; command mode          
+00D0   308E           00323                 movlw   0x8E    ; Address for slot
+00D1   2???           00324         call    send
+                      00325         ;print char
+00D2   14F4           00326                 BSF Select,RS
+00D3   3043           00327                 MOVLW 43 ;initialize pointer
+00D4   0084           00328                 MOVWF FSR ;to RAM
+00D5   0800           00329                 movfw INDF
+00D6   2???           00330                 call send
+                      00331 
+                      00332         ;choose slot
+00D7   10F4           00333                 BCF     Select,RS       ; command mode          
+00D8   308F           00334                 movlw   0x8F    ; Address for slot
+00D9   2???           00335         call    send
+                      00336         ;print char
+00DA   14F4           00337                 BSF Select,RS
+00DB   3042           00338                 MOVLW 42 ;initialize pointer
+00DC   0084           00339                 MOVWF FSR ;to RAM
+00DD   0800           00340                 movfw INDF
+00DE   2???           00341                 call send
+                      00342 
+                      00343         ;choose slot 
+00DF   10F4           00344                 BCF     Select,RS       ; command mode          
+00E0   30CF           00345                 movlw   0xCF    ; Address for slot
+00E1   2???           00346         call    send
+                      00347         ;print char
+00E2   14F4           00348                 BSF Select,RS
+00E3   3041           00349                 MOVLW 41 ;initialize pointer
+00E4   0084           00350                 MOVWF FSR ;to RAM
+00E5   0800           00351                 movfw INDF
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00E6   2???           00352                 call send
+                      00353 
+Warning[202]: Argument out of range.  Least significant bits used.
+00E7   30F4           00354                 MOVLW   D'500'          ; Load count for 100ms delay
+00E8   2???           00355                 CALL    xms
+                      00356 ;_______________________________________________________________
+                      00357 ;___________________________________________---BLOCK # 2---_____________________________
+00E9   1C06           00358                 btfss PORTB, 0
+00EA   2???           00359                 goto start
+                      00360         ;clear
+00EB   3001           00361                 MOVLW   0x01            ; clear
+00EC   10F4           00362                 BCF     Select,RS       ; Select command mode
+00ED   2???           00363                 CALL    send            ; and send code
+                      00364 
+                      00365 
+                      00366         ;choose slot
+00EE   10F4           00367                 BCF     Select,RS       ; command mode          
+00EF   308D           00368                 movlw   0x8D    ; Address for slot
+00F0   2???           00369         call    send
+                      00370         ;print char
+00F1   14F4           00371                 BSF Select,RS
+00F2   3045           00372                 MOVLW 45 ;initialize pointer
+00F3   0084           00373                 MOVWF FSR ;to RAM
+00F4   0800           00374                 movfw INDF
+00F5   2???           00375                 call send
+                      00376 
+                      00377         ;choose slot
+00F6   10F4           00378                 BCF     Select,RS       ; command mode          
+00F7   308E           00379                 movlw   0x8E    ; Address for slot
+00F8   2???           00380         call    send
+                      00381         ;print char
+00F9   14F4           00382                 BSF Select,RS
+00FA   3044           00383                 MOVLW 44 ;initialize pointer
+00FB   0084           00384                 MOVWF FSR ;to RAM
+00FC   0800           00385                 movfw INDF
+00FD   2???           00386                 call send
+                      00387 
+                      00388         ;choose slot
+00FE   10F4           00389                 BCF     Select,RS       ; command mode          
+00FF   308F           00390                 movlw   0x8F    ; Address for slot
+0100   2???           00391         call    send
+                      00392         ;print char
+0101   14F4           00393                 BSF Select,RS
+0102   3043           00394                 MOVLW 43 ;initialize pointer
+0103   0084           00395                 MOVWF FSR ;to RAM
+0104   0800           00396                 movfw INDF
+0105   2???           00397                 call send
+                      00398 
+                      00399         ;choose slot
+0106   10F4           00400                 BCF     Select,RS       ; command mode          
+0107   30CF           00401                 movlw   0xCF    ; Address for slot
+0108   2???           00402         call    send
+                      00403         ;print char
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0109   14F4           00404                 BSF Select,RS
+010A   3042           00405                 MOVLW 42 ;initialize pointer
+010B   0084           00406                 MOVWF FSR ;to RAM
+010C   0800           00407                 movfw INDF
+010D   2???           00408                 call send
+                      00409 
+                      00410         ;choose slot 
+010E   10F4           00411                 BCF     Select,RS       ; command mode          
+010F   30CE           00412                 movlw   0xCE    ; Address for slot
+0110   2???           00413         call    send
+                      00414         ;print char
+0111   14F4           00415                 BSF Select,RS
+0112   3041           00416                 MOVLW 41 ;initialize pointer
+0113   0084           00417                 MOVWF FSR ;to RAM
+0114   0800           00418                 movfw INDF
+0115   2???           00419                 call send
+                      00420 
+Warning[202]: Argument out of range.  Least significant bits used.
+0116   30F4           00421                 MOVLW   D'500'          ; Load count for 100ms delay
+0117   2???           00422                 CALL    xms
+                      00423 ;_______________________________________________________________
+                      00424 
+                      00425 ;___________________________________________---BLOCK # 3---_____________________________
+0118   1C06           00426                 btfss PORTB, 0
+0119   2???           00427                 goto start
+                      00428         ;clear
+011A   3001           00429                 MOVLW   0x01            ; clear
+011B   10F4           00430                 BCF     Select,RS       ; Select command mode
+011C   2???           00431                 CALL    send            ; and send code
+                      00432 
+                      00433 
+                      00434         ;choose slot
+011D   10F4           00435                 BCF     Select,RS       ; command mode          
+011E   308E           00436                 movlw   0x8E    ; Address for slot
+011F   2???           00437         call    send
+                      00438         ;print char
+0120   14F4           00439                 BSF Select,RS
+0121   3045           00440                 MOVLW 45 ;initialize pointer
+0122   0084           00441                 MOVWF FSR ;to RAM
+0123   0800           00442                 movfw INDF
+0124   2???           00443                 call send
+                      00444 
+                      00445         ;choose slot
+0125   10F4           00446                 BCF     Select,RS       ; command mode          
+0126   308F           00447                 movlw   0x8F    ; Address for slot
+0127   2???           00448         call    send
+                      00449         ;print char
+0128   14F4           00450                 BSF Select,RS
+0129   3044           00451                 MOVLW 44 ;initialize pointer
+012A   0084           00452                 MOVWF FSR ;to RAM
+012B   0800           00453                 movfw INDF
+012C   2???           00454                 call send
+                      00455 
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00456         ;choose slot
+012D   10F4           00457                 BCF     Select,RS       ; command mode          
+012E   30CF           00458                 movlw   0xCF    ; Address for slot
+012F   2???           00459         call    send
+                      00460         ;print char
+0130   14F4           00461                 BSF Select,RS
+0131   3043           00462                 MOVLW 43 ;initialize pointer
+0132   0084           00463                 MOVWF FSR ;to RAM
+0133   0800           00464                 movfw INDF
+0134   2???           00465                 call send
+                      00466 
+                      00467         ;choose slot
+0135   10F4           00468                 BCF     Select,RS       ; command mode          
+0136   30CE           00469                 movlw   0xCE    ; Address for slot
+0137   2???           00470         call    send
+                      00471         ;print char
+0138   14F4           00472                 BSF Select,RS
+0139   3042           00473                 MOVLW 42 ;initialize pointer
+013A   0084           00474                 MOVWF FSR ;to RAM
+013B   0800           00475                 movfw INDF
+013C   2???           00476                 call send
+                      00477 
+                      00478         ;choose slot 
+013D   10F4           00479                 BCF     Select,RS       ; command mode          
+013E   30CD           00480                 movlw   0xCD    ; Address for slot
+013F   2???           00481         call    send
+                      00482         ;print char
+0140   14F4           00483                 BSF Select,RS
+0141   3041           00484                 MOVLW 41 ;initialize pointer
+0142   0084           00485                 MOVWF FSR ;to RAM
+0143   0800           00486                 movfw INDF
+0144   2???           00487                 call send
+                      00488 
+Warning[202]: Argument out of range.  Least significant bits used.
+0145   30F4           00489                 MOVLW   D'500'          ; Load count for 100ms delay
+0146   2???           00490                 CALL    xms
+                      00491 ;_______________________________________________________________
+                      00492 ;___________________________________________---BLOCK # 4---_____________________________
+0147   1C06           00493                 btfss PORTB, 0
+0148   2???           00494                 goto start
+                      00495         ;clear
+0149   3001           00496                 MOVLW   0x01            ; clear
+014A   10F4           00497                 BCF     Select,RS       ; Select command mode
+014B   2???           00498                 CALL    send            ; and send code
+                      00499 
+                      00500 
+                      00501         ;choose slot
+014C   10F4           00502                 BCF     Select,RS       ; command mode          
+014D   308F           00503                 movlw   0x8F    ; Address for slot
+014E   2???           00504         call    send
+                      00505         ;print char
+014F   14F4           00506                 BSF Select,RS
+0150   3045           00507                 MOVLW 45 ;initialize pointer
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0151   0084           00508                 MOVWF FSR ;to RAM
+0152   0800           00509                 movfw INDF
+0153   2???           00510                 call send
+                      00511 
+                      00512         ;choose slot
+0154   10F4           00513                 BCF     Select,RS       ; command mode          
+0155   30CF           00514                 movlw   0xCF    ; Address for slot
+0156   2???           00515         call    send
+                      00516         ;print char
+0157   14F4           00517                 BSF Select,RS
+0158   3044           00518                 MOVLW 44 ;initialize pointer
+0159   0084           00519                 MOVWF FSR ;to RAM
+015A   0800           00520                 movfw INDF
+015B   2???           00521                 call send
+                      00522 
+                      00523         ;choose slot
+015C   10F4           00524                 BCF     Select,RS       ; command mode          
+015D   30CE           00525                 movlw   0xCE    ; Address for slot
+015E   2???           00526         call    send
+                      00527         ;print char
+015F   14F4           00528                 BSF Select,RS
+0160   3043           00529                 MOVLW 43 ;initialize pointer
+0161   0084           00530                 MOVWF FSR ;to RAM
+0162   0800           00531                 movfw INDF
+0163   2???           00532                 call send
+                      00533 
+                      00534         ;choose slot
+0164   10F4           00535                 BCF     Select,RS       ; command mode          
+0165   30CD           00536                 movlw   0xCD   ; Address for slot
+0166   2???           00537         call    send
+                      00538         ;print char
+0167   14F4           00539                 BSF Select,RS
+0168   3042           00540                 MOVLW 42 ;initialize pointer
+0169   0084           00541                 MOVWF FSR ;to RAM
+016A   0800           00542                 movfw INDF
+016B   2???           00543                 call send
+                      00544 
+                      00545         ;choose slot 
+016C   10F4           00546                 BCF     Select,RS       ; command mode          
+016D   30CC           00547                 movlw   0xCC    ; Address for slot
+016E   2???           00548         call    send
+                      00549         ;print char
+016F   14F4           00550                 BSF Select,RS
+0170   3041           00551                 MOVLW 41 ;initialize pointer
+0171   0084           00552                 MOVWF FSR ;to RAM
+0172   0800           00553                 movfw INDF
+0173   2???           00554                 call send
+                      00555 
+Warning[202]: Argument out of range.  Least significant bits used.
+0174   30F4           00556                 MOVLW   D'500'          ; Load count for 100ms delay
+0175   2???           00557                 CALL    xms
+                      00558 ;_______________________________________________________________
+                      00559 
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 12
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00560 ;___________________________________________---BLOCK # 5---_____________________________
+0176   1C06           00561                 btfss PORTB, 0
+0177   2???           00562                 goto start
+                      00563         ;clear
+0178   3001           00564                 MOVLW   0x01            ; clear
+0179   10F4           00565                 BCF     Select,RS       ; Select command mode
+017A   2???           00566                 CALL    send            ; and send code
+                      00567 
+                      00568 
+                      00569         ;choose slot
+017B   10F4           00570                 BCF     Select,RS       ; command mode          
+017C   30CF           00571                 movlw   0xCF    ; Address for slot
+017D   2???           00572         call    send
+                      00573         ;print char
+017E   14F4           00574                 BSF Select,RS
+017F   3045           00575                 MOVLW 45 ;initialize pointer
+0180   0084           00576                 MOVWF FSR ;to RAM
+0181   0800           00577                 movfw INDF
+0182   2???           00578                 call send
+                      00579 
+                      00580         ;choose slot
+0183   10F4           00581                 BCF     Select,RS       ; command mode          
+0184   30CE           00582                 movlw   0xCE    ; Address for slot
+0185   2???           00583         call    send
+                      00584         ;print char
+0186   14F4           00585                 BSF Select,RS
+0187   3044           00586                 MOVLW 44 ;initialize pointer
+0188   0084           00587                 MOVWF FSR ;to RAM
+0189   0800           00588                 movfw INDF
+018A   2???           00589                 call send
+                      00590 
+                      00591         ;choose slot
+018B   10F4           00592                 BCF     Select,RS       ; command mode          
+018C   30CD           00593                 movlw   0xCD    ; Address for slot
+018D   2???           00594         call    send
+                      00595         ;print char
+018E   14F4           00596                 BSF Select,RS
+018F   3043           00597                 MOVLW 43 ;initialize pointer
+0190   0084           00598                 MOVWF FSR ;to RAM
+0191   0800           00599                 movfw INDF
+0192   2???           00600                 call send
+                      00601 
+                      00602         ;choose slot
+0193   10F4           00603                 BCF     Select,RS       ; command mode          
+0194   30CC           00604                 movlw   0xCC   ; Address for slot
+0195   2???           00605         call    send
+                      00606         ;print char
+0196   14F4           00607                 BSF Select,RS
+0197   3042           00608                 MOVLW 42 ;initialize pointer
+0198   0084           00609                 MOVWF FSR ;to RAM
+0199   0800           00610                 movfw INDF
+019A   2???           00611                 call send
+                      00612 
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00613         ;choose slot 
+019B   10F4           00614                 BCF     Select,RS       ; command mode          
+019C   30CB           00615                 movlw   0xCB    ; Address for slot
+019D   2???           00616         call    send
+                      00617         ;print char
+019E   14F4           00618                 BSF Select,RS
+019F   3041           00619                 MOVLW 41 ;initialize pointer
+01A0   0084           00620                 MOVWF FSR ;to RAM
+01A1   0800           00621                 movfw INDF
+01A2   2???           00622                 call send
+                      00623 
+Warning[202]: Argument out of range.  Least significant bits used.
+01A3   30F4           00624                 MOVLW   D'500'          ; Load count for 100ms delay
+01A4   2???           00625                 CALL    xms
+                      00626 ;_______________________________________________________________
+                      00627 
+                      00628 
+                      00629 
+                      00630 ;___________
+                      00631 ;ffg goto ffg
+                      00632 
+01A5   2???           00633                 call shift_once_left
+01A6   2???           00634                 call shift_once_left
+01A7   2???           00635                 call shift_once_left
+01A8   2???           00636                 call shift_once_left
+01A9   2???           00637                 call shift_once_left
+01AA   2???           00638                 call shift_once_left
+01AB   2???           00639                 call shift_once_left
+01AC   2???           00640                 call shift_once_left
+01AD   2???           00641                 call shift_once_left
+01AE   2???           00642                 call shift_once_left
+01AF   2???           00643                 call shift_once_left
+01B0   2???           00644                 call shift_once_left
+01B1   2???           00645                 call shift_once_left
+01B2   2???           00646                 call shift_once_left
+01B3   2???           00647                 call shift_once_left
+01B4   2???           00648                 call shift_once_left
+                      00649 
+01B5   3008           00650                 movlw 0x08
+01B6   10F4           00651                 BCF Select,RS
+01B7   2???           00652                 call send
+                      00653 
+                      00654                 ;MOVLW  0x80            ; position to home cursor
+                      00655                 ;BCF    Select,RS       ; Select command mode
+                      00656                 ;CALL   send
+01B8   2???           00657                 goto shift_screen
+                      00658                 
+01B9   1C06           00659 shift_once btfss PORTB, 0
+01BA   2???           00660                 goto start
+01BB   301C           00661                 movlw 0x1C
+01BC   10F4           00662                 BCF     Select,RS       ; Select command mode
+01BD   2???           00663                 CALL    send
+Warning[202]: Argument out of range.  Least significant bits used.
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 14
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+01BE   30F4           00664                 MOVLW   D'500'          ; Load count for 100ms delay
+01BF   2???           00665                 CALL    xms
+01C0   0008           00666                 return
+                      00667 
+01C1   1C06           00668 shift_once_left btfss PORTB, 0
+01C2   2???           00669                 goto start
+01C3   3018           00670                 movlw 0x18
+01C4   10F4           00671                 BCF     Select,RS       ; Select command mode
+01C5   2???           00672                 CALL    send
+Warning[202]: Argument out of range.  Least significant bits used.
+01C6   30F4           00673                 MOVLW   D'500'          ; Load count for 100ms delay
+01C7   2???           00674                 CALL    xms
+01C8   0008           00675                 return
+                      00676 
+                      00677 ; Include LCD driver routine
+                      00678         
+                      00679         INCLUDE "LCDIS.INC"
+                      00001 ;--------------------------------------------------------------
+                      00002 ;       LCDIS.INC               MPB     19-12-05
+                      00003 ;
+                      00004 ;       Include file to operate 16x2 LCD display
+                      00005 ;       Uses GPR 70 - 75
+                      00006 ;       
+                      00007 ;       Final version
+                      00008 ;--------------------------------------------------------------
+                      00009 
+  00000070            00010 Timer1  EQU     70              ; 1ms count register
+  00000071            00011 TimerX  EQU     71              ; Xms count register
+  00000072            00012 Var     EQU     72              ; Output variable
+  00000073            00013 Point   EQU     73              ; Program table pointer
+  00000074            00014 Select  EQU     74              ; Used to set or clear RS bit
+  00000075            00015 OutCod  EQU     75              ; Temp store for output code
+                      00016 
+  00000001            00017 RS      EQU     1               ; Register select output bit
+  00000002            00018 E       EQU     2               ; Enable display input
+                      00019 
+                      00020 
+                      00021 ;--------------------------------------------------------------
+                      00022 ;       1ms delay with 1us cycle time (1000 cycles)
+                      00023 ;--------------------------------------------------------------
+01C9   30F9           00024 onems   MOVLW   D'249'          ; Count for 1ms delay 
+01CA   00F0           00025         MOVWF   Timer1          ; Load count
+01CB   0000           00026 loop1   NOP                     ; Pad for 4 cycle loop
+Message[305]: Using default destination of 1 (file).
+01CC   0BF0           00027         DECFSZ  Timer1          ; Count
+01CD   2???           00028         GOTO    loop1           ; until Z
+01CE   0008           00029         RETURN                  ; and finish
+                      00030 
+                      00031 ;--------------------------------------------------------------
+                      00032 ;       Delay Xms
+                      00033 ;       Receives count in W, uses Onems
+                      00034 ;--------------------------------------------------------------
+01CF   00F1           00035 xms     MOVWF   TimerX          ; Count for X ms
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 15
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+01D0   2???           00036 loopX   CALL    onems           ; Delay 1ms
+Message[305]: Using default destination of 1 (file).
+01D1   0BF1           00037         DECFSZ  TimerX          ; Repeat X times 
+01D2   2???           00038         GOTO    loopX           ; until Z
+01D3   0008           00039         RETURN                  ; and finish
+                      00040 
+                      00041 ;--------------------------------------------------------------
+                      00042 ;       Generate data/command clock siganl E
+                      00043 ;--------------------------------------------------------------
+01D4   1508           00044 pulseE  BSF     PORTD,E         ; Set E high
+01D5   2???           00045         CALL    onems           ; Delay 1ms
+01D6   1108           00046         BCF     PORTD,E         ; Reset E low
+01D7   2???           00047         CALL    onems           ; Delay 1ms
+01D8   0008           00048         RETURN                  ; done
+                      00049 
+                      00050 ;--------------------------------------------------------------
+                      00051 ;       Send a command byte in two nibbles from RB4 - RB7
+                      00052 ;       Receives command in W, uses PulseE and Onems
+                      00053 ;--------------------------------------------------------------
+01D9   00F5           00054 send    MOVWF   OutCod          ; Store output code
+01DA   39F0           00055         ANDLW   0F0             ; Clear low nybble
+01DB   0088           00056         MOVWF   PORTD           ; Output high nybble
+01DC   18F4           00057         BTFSC   Select,RS       ; Test RS bit
+01DD   1488           00058         BSF     PORTD,RS        ; and set for data
+01DE   2???           00059         CALL    pulseE          ; and clock display register
+01DF   2???           00060         CALL    onems           ; wait 1ms for display
+                      00061 
+Message[305]: Using default destination of 1 (file).
+01E0   0EF5           00062         SWAPF   OutCod          ; Swap low and high nybbles 
+01E1   0875           00063         MOVF    OutCod,W        ; Retrieve output code
+01E2   39F0           00064         ANDLW   0F0             ; Clear low nybble
+01E3   0088           00065         MOVWF   PORTD           ; Output low nybble
+01E4   18F4           00066         BTFSC   Select,RS       ; Test RS bit
+01E5   1488           00067         BSF     PORTD,RS        ; and set for data
+01E6   2???           00068         CALL    pulseE          ; and clock display register
+01E7   2???           00069         CALL    onems           ; wait 1ms for display
+01E8   0008           00070         RETURN                  ; done
+                      00071 
+                      00072 ;--------------------------------------------------------------
+                      00073 ;       Initialise the display
+                      00074 ;       Uses Send
+                      00075 ;--------------------------------------------------------------
+01E9   3064           00076 inid    MOVLW   D'100'          ; Load count for 100ms delay
+01EA   2???           00077         CALL    xms             ; and wait for display start
+01EB   30F0           00078         MOVLW   0F0             ; Mask for select code
+01EC   00F4           00079         MOVWF   Select          ; High nybble not masked
+                      00080 
+01ED   3030           00081         MOVLW   0x30            ; Load initial nibble
+01EE   0088           00082         MOVWF   PORTD           ; and output it to display
+01EF   2???           00083         CALL    pulseE          ; Latch initial code
+01F0   3005           00084         MOVLW   D'5'            ; Set delay 5ms
+01F1   2???           00085         CALL    xms             ; and wait
+01F2   2???           00086         CALL    pulseE          ; Latch initial code again
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 16
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+01F3   2???           00087         CALL    onems           ; Wait 1ms
+01F4   2???           00088         CALL    pulseE          ; Latch initial code again
+01F5   1208           00089         BCF     PORTD,4         ; Set 4-bit mode
+01F6   2???           00090         CALL    pulseE          ; Latch it
+                      00091         
+01F7   3028           00092         MOVLW   0x28            ; Set 4-bit mode, 2 lines
+01F8   2???           00093         CALL    send            ; and send code
+01F9   3008           00094         MOVLW   0x08            ; Switch off display
+01FA   2???           00095         CALL    send            ; and send code
+01FB   3001           00096         MOVLW   0x01            ; Code to clear display
+01FC   2???           00097         CALL    send            ; and send code
+01FD   3006           00098         MOVLW   0x06            ; Enable cursor auto inc  
+01FE   2???           00099         CALL    send            ; and send code
+01FF   3080           00100         MOVLW   0x80            ; Zero display address
+0200   2???           00101         CALL    send            ; and send code
+0201   300C           00102         MOVLW   0x0C            ; Turn on display  
+0202   2???           00103         CALL    send            ; and send code
+                      00104 
+0203   0008           00105         RETURN                  ; Done
+                      00106 
+                      00107 ;--------------------------------------------------------------
+                      00108 ;clear
+                      00680 
+3731                  00681         END     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 17
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ADCON0                            0000001F
+ADCON1                            0000009F
+ADCS0                             00000006
+ADCS1                             00000007
+ADDEN                             00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADON                              00000000
+ADRESH                            0000001E
+ADRESL                            0000009E
+BCLIE                             00000003
+BCLIF                             00000003
+BF                                00000000
+BRGH                              00000002
+C                                 00000000
+C1INV                             00000004
+C1OUT                             00000006
+C2INV                             00000005
+C2OUT                             00000007
+CCP1CON                           00000017
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1X                             00000005
+CCP1Y                             00000004
+CCP2CON                           0000001D
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2M0                            00000000
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCP2X                             00000005
+CCP2Y                             00000004
+CCPR1H                            00000016
+CCPR1L                            00000015
+CCPR2H                            0000001C
+CCPR2L                            0000001B
+CHS0                              00000003
+CHS1                              00000004
+CHS2                              00000005
+CIS                               00000003
+CKE                               00000006
+CKP                               00000004
+CM0                               00000000
+CM1                               00000001
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 18
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CM2                               00000002
+CMCON                             0000009C
+CMIE                              00000006
+CMIF                              00000006
+CREN                              00000004
+CSRC                              00000007
+CVR0                              00000000
+CVR1                              00000001
+CVR2                              00000002
+CVR3                              00000003
+CVRCON                            0000009D
+CVREN                             00000007
+CVROE                             00000006
+CVRR                              00000005
+Char                              00000030
+Char1                             00000041
+Char2                             00000042
+Char3                             00000043
+Char4                             00000044
+Char5                             00000045
+Characters                        00000048
+Current_char                      00000047
+Cursor                            00000028
+D                                 00000005
+DATA_ADDRESS                      00000005
+DC                                00000001
+D_A                               00000005
+E                                 00000002
+EEADR                             0000010D
+EEADRH                            0000010F
+EECON1                            0000018C
+EECON2                            0000018D
+EEDATA                            0000010C
+EEDATH                            0000010E
+EEIE                              00000004
+EEIF                              00000004
+EEPGD                             00000007
+F                                 00000001
+FERR                              00000002
+FSR                               00000004
+GCEN                              00000007
+GIE                               00000007
+GO                                00000002
+GO_DONE                           00000002
+I2C_DATA                          00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+IBF                               00000007
+IBOV                              00000005
+INDF                              00000000
+INTCON                            0000000B
+INTE                              00000004
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 19
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+INTEDG                            00000006
+INTF                              00000001
+IRP                               00000007
+Index                             00000046
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BO                            00000000
+NOT_BOR                           00000000
+NOT_DONE                          00000002
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RC8                           00000006
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+NOT_TX8                           00000006
+NOT_W                             00000002
+NOT_WRITE                         00000002
+OBF                               00000006
+OERR                              00000001
+OPTION_REG                        00000081
+OutCod                            00000075
+P                                 00000004
+PCFG0                             00000000
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000002
+PCLATH                            0000000A
+PCON                              0000008E
+PEIE                              00000006
+PEN                               00000002
+PIE1                              0000008C
+PIE2                              0000008D
+PIR1                              0000000C
+PIR2                              0000000D
+PORTA                             00000005
+PORTB                             00000006
+PORTC                             00000007
+PORTD                             00000008
+PORTE                             00000009
+PR2                               00000092
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+PSPIE                             00000007
+PSPIF                             00000007
+PSPMODE                           00000004
+Point                             00000073
+R                                 00000002
+RBIE                              00000003
+RBIF                              00000000
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 20
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RC8_9                             00000006
+RC9                               00000006
+RCD8                              00000000
+RCEN                              00000003
+RCIE                              00000005
+RCIF                              00000005
+RCREG                             0000001A
+RCSTA                             00000018
+RD                                00000000
+READ_WRITE                        00000002
+RP0                               00000005
+RP1                               00000006
+RS                                00000001
+RSEN                              00000001
+RX9                               00000006
+RX9D                              00000000
+R_W                               00000002
+S                                 00000003
+SEN                               00000000
+SMP                               00000007
+SPBRG                             00000099
+SPEN                              00000007
+SREN                              00000005
+SSPADD                            00000093
+SSPBUF                            00000013
+SSPCON                            00000014
+SSPCON2                           00000091
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+SSPSTAT                           00000094
+STATUS                            00000003
+SYNC                              00000004
+Select                            00000074
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000010
+T1INSYNC                          00000002
+T1OSCEN                           00000003
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000012
+TMR0                              00000001
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 21
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR1CS                            00000001
+TMR1H                             0000000F
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             0000000E
+TMR1ON                            00000000
+TMR2                              00000011
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000085
+TRISB                             00000086
+TRISC                             00000087
+TRISD                             00000088
+TRISE                             00000089
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRMT                              00000001
+TX8_9                             00000006
+TX9                               00000006
+TX9D                              00000000
+TXD8                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXREG                             00000019
+TXSTA                             00000098
+Timer                             00000039
+Timer1                            00000070
+TimerX                            00000071
+UA                                00000001
+Var                               00000072
+W                                 00000000
+WCOL                              00000007
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+Z                                 00000002
+_BODEN_OFF                        00003FBF
+_BODEN_ON                         00003FFF
+_CPD_OFF                          00003FFF
+_CPD_ON                           00003EFF
+_CP_ALL                           00001FFF
+_CP_OFF                           00003FFF
+_DEBUG_OFF                        00003FFF
+_DEBUG_ON                         000037FF
+MPASM  5.50                          CODE.ASM   3-4-2023  19:59:46         PAGE 22
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_HS_OSC                           00003FFE
+_LP_OSC                           00003FFC
+_LVP_OFF                          00003F7F
+_LVP_ON                           00003FFF
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FF7
+_RC_OSC                           00003FFF
+_WDT_OFF                          00003FFB
+_WDT_ON                           00003FFF
+_WRT_1FOURTH                      00003BFF
+_WRT_256                          00003DFF
+_WRT_HALF                         000039FF
+_WRT_OFF                          00003FFF
+_XT_OSC                           00003FFD
+__16F877A                         00000001
+__DEBUG                           1
+buttonNotPressed                  0000004C
+incCursor                         0000006F
+inid                              000001E9
+loop1                             000001CB
+loopX                             000001D0
+onems                             000001C9
+pRoutine                          00000040
+printNext                         0000005E
+printt                            0000009B
+pulseE                            000001D4
+send                              000001D9
+shift_once                        000001B9
+shift_once_left                   000001C1
+shift_screen                      00000093
+start                             0000000E
+test_off                          00000084
+xms                               000001CF
+
+Errors   :     0
+Warnings :    16 reported,     0 suppressed
+Messages :     6 reported,     0 suppressed
+
+

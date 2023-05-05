@@ -1,0 +1,66 @@
+MPLINK 4.48, Linker
+Linker Map File - Created Sat Mar 04 19:59:47 2023
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000408
+                   .cinit    romdata   0x000204    program   0x000004
+      .config_2007_CODE.O       code   0x002007    program   0x000002
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000205      
+                            0x002007    0x002007      
+            519 out of 8454 program addresses used, program memory utilization is 6%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+         buttonNotPressed   0x00004c    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                incCursor   0x00006f    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                     inid   0x0001e9    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+                    loop1   0x0001cb    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+                    loopX   0x0001d0    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+                    onems   0x0001c9    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+                 pRoutine   0x000040    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                printNext   0x00005e    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                   printt   0x00009b    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                   pulseE   0x0001d4    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+                     send   0x0001d9    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+               shift_once   0x0001b9    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+          shift_once_left   0x0001c1    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+             shift_screen   0x000093    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                    start   0x00000e    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                 test_off   0x000084    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                      xms   0x0001cf    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                    start   0x00000e    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                 pRoutine   0x000040    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+         buttonNotPressed   0x00004c    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                printNext   0x00005e    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                incCursor   0x00006f    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                 test_off   0x000084    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+             shift_screen   0x000093    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                   printt   0x00009b    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+               shift_once   0x0001b9    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+          shift_once_left   0x0001c1    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\code.ASM
+                    onems   0x0001c9    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+                    loop1   0x0001cb    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+                      xms   0x0001cf    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+                    loopX   0x0001d0    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+                   pulseE   0x0001d4    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+                     send   0x0001d9    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+                     inid   0x0001e9    program     static C:\Users\Administrator\Desktop\Year 4 Sem 1\RealTime Final\Proj4Final\LCDIS.INC
+
+

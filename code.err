@@ -1,0 +1,22 @@
+Message[302] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 43 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 44 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 46 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Warning[211] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 89 : Extraneous arguments on the line.
+Warning[211] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 90 : Extraneous arguments on the line.
+Warning[211] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 91 : Extraneous arguments on the line.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 222 : Argument out of range.  Least significant bits used.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 224 : Argument out of range.  Least significant bits used.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 226 : Argument out of range.  Least significant bits used.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 228 : Argument out of range.  Least significant bits used.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 230 : Argument out of range.  Least significant bits used.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 232 : Argument out of range.  Least significant bits used.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 354 : Argument out of range.  Least significant bits used.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 421 : Argument out of range.  Least significant bits used.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 489 : Argument out of range.  Least significant bits used.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 556 : Argument out of range.  Least significant bits used.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 624 : Argument out of range.  Least significant bits used.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 664 : Argument out of range.  Least significant bits used.
+Warning[202] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\CODE.ASM 673 : Argument out of range.  Least significant bits used.
+Message[305] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\LCDIS.INC 27 : Using default destination of 1 (file).
+Message[305] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\LCDIS.INC 37 : Using default destination of 1 (file).
+Message[305] C:\USERS\ADMINISTRATOR\DESKTOP\YEAR 4 SEM 1\REALTIME FINAL\PROJ4FINAL\LCDIS.INC 62 : Using default destination of 1 (file).
